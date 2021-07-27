@@ -1,0 +1,32 @@
+pre-push:
+  parallel: true
+  scripts:
+    "review-check":
+      runner: bash
+  commands:
+    black:
+      tags: push-black
+      glob: "*.py"
+      exclude: "snapshots"
+      run: if git diff --name-only master | grep -E '^backend.*$' -q; then poetry run black --diff --check {all_files}; fi
+
+    flake8:
+      tags: push-flake8
+      glob: "*.py"
+      run: if git diff --name-only master | grep -E '^backend.*$' -q; then poetry run flake8 --show-source {all_files}; fi
+
+    isort:
+      tags: push-isort
+      glob: "*.py"
+      # checks only, quiet, diff only
+      run: if git diff --name-only master | grep -E '^backend.*$' -q; then poetry run isort . -cq -d; fi
+
+    bandit:
+      tags: push-bandit
+      glob: "*.py"
+      run: if git diff --name-only master | grep -E '^backend.*$' -q; then  poetry run bandit --exclude "venv,test_*.py,tests_*.py,tests,test" --quiet -n 2 {all_files}; fi
+
+    mypy:
+      tags: push-mypy
+      glob: "*.py"
+      run: if git diff --name-only master | grep -E '^backend.*$' -q; then poetry run mypy . --exclude tests; fi
