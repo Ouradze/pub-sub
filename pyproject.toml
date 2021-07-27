@@ -9,6 +9,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
+desert = "^2020.11.18"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.0"
@@ -20,6 +21,8 @@ isort = "^5.9.2"
 mypy = "^0.910"
 pytest = "^6.2.4"
 pytest-cov = "^2.12.1"
+factory-boy = "^3.2.0"
+snapshottest = "^0.6.0"
 
 [tool.black]
 line-length = 88
