@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.9.4-slim
+    steps:
+      - uses: actions/checkout@v1
+      - name: System dependencies
+        run: apt-get update && apt-get install -y gettext libpq-dev ca-certificates gcc libffi-dev libjpeg-dev zlib1g-dev musl-dev libxml2 libxml2-dev libxslt-dev curl git
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            poetry-${{ hashFiles('**/poetry.lock') }}
+      - uses: Gr1N/setup-poetry@v4
+      - name: Configure poetry
+        run: |
+          poetry config virtualenvs.path ~/.virtualenvs
+      - name: Install python dependencies
+        run: |
+          poetry install
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
+      - name: Run quality
+        run: |
+          source $(poetry env info --path)/bin/activate
+          invoke quality
+        env:
+          CI_JOB_TOKEN: "please dont run in an image"
+        shell: bash
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.9.4-slim
+    steps:
+      - uses: actions/checkout@v1
+      - name: System dependencies
+        run: apt-get update && apt-get install -y gettext libpq-dev ca-certificates gcc libffi-dev libjpeg-dev zlib1g-dev musl-dev libxml2 libxml2-dev libxslt-dev curl git
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            poetry-${{ hashFiles('**/poetry.lock') }}
+      - uses: Gr1N/setup-poetry@v4
+      - name: Configure poetry
+        run: |
+          poetry config virtualenvs.path ~/.virtualenvs
+      - name: Install python dependencies
+        run: |
+          poetry install
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
+      - name: Run tests
+        run: |
+          export ENVIRONMENT="ci"
+          source $(poetry env info --path)/bin/activate
+          invoke coverage
+        shell: bash
+        env:
+          CI_JOB_TOKEN: "please dont run in an image"
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage.xml
+          name: codecov-lib
+          flags: lib

@@ -1,0 +1,13 @@
+coverage:
+  status:
+    project:
+      default: off
+      lib:
+        flags: lib
+comment:
+  layout: "reach, flags, files"
+flags:
+  lib:
+    paths:
+      - src/
+
