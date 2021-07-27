@@ -3,6 +3,9 @@ name = "upciti"
 version = "0.1.0"
 description = "Technical test interview for upciti"
 authors = ["Ouradze <me.raddadi@gmail.com>"]
+packages = [
+  { include = "upciti", from = "src" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
