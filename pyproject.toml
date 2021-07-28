@@ -23,6 +23,7 @@ pytest = "^6.2.4"
 pytest-cov = "^2.12.1"
 factory-boy = "^3.2.0"
 snapshottest = "^0.6.0"
+pytest-mock = "^3.6.1"
 
 [tool.black]
 line-length = 88
