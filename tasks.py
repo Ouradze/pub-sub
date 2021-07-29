@@ -64,3 +64,53 @@ def coverage(c, local=False):
         f"pytest --cov=src {coverage_option} --no-cov-on-fail --cov-branch --color=yes",
         pty=True,
     )
+
+
+BASE_DOCKER_COMPOSE_CMD = "docker-compose -p upciti "
+
+
+@task
+def pull_images(c):
+    """Pull images defined by the docker-compose files."""
+    command = BASE_DOCKER_COMPOSE_CMD + "pull"
+    c.run(command, pty=True)
+
+
+@task(
+    help={"scratch": "build from scratch, does not use the cache"},
+)
+def build(c, scratch=False):
+    """Build the images for the development mode"""
+    command = "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 " + BASE_DOCKER_COMPOSE_CMD
+    no_cache = ""
+
+    if scratch:
+        no_cache = "--no-cache"
+
+    command += f"build {no_cache}"
+
+    c.run(command, pty=True)
+
+
+@task(
+    help={
+        "detached": "Set detached mode",
+    },
+)
+def run(c, detached=False):
+    """Run the development environment."""
+
+    command = "DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 " + BASE_DOCKER_COMPOSE_CMD
+
+    command += " up"
+
+    if detached:
+        command += " -d"
+
+    c.run(command, pty=True, echo=True)
+
+
+@task
+def stop(c):
+    """Use this to stop your environment if you used detached"""
+    c.run(BASE_DOCKER_COMPOSE_CMD + "down")
