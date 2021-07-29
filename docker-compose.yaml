@@ -1,0 +1,14 @@
+version: "3.7"
+
+services:
+  worker:
+    image: ghcr.io/ouradze/pub_sub:master
+    build:
+      context: .
+      target: dev  # temporary as the factory is used at this time
+    restart: on-failure
+    container_name: upciti_worker
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./:/app
